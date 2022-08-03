@@ -1,0 +1,6 @@
+.ArticleInfo >header{
+    margin-bottom:20px
+}
+.ArticleInfo >header >*{
+    margin-right: 15px;
+}

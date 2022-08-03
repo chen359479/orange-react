@@ -1,0 +1,74 @@
+.header {
+    height: 46px;
+    line-height: 46px;
+    background-color: #eeeeee;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+    overflow: hidden;
+}
+.header >div{
+    display: inline-block;
+    margin: 0 15px;
+    text-align: center;
+}
+.header >div >i{
+    color: #000;
+    cursor: pointer;
+}
+
+.logo{
+    float: left;
+    clear: both;
+}
+
+.pattern {
+    width: 15px;
+    cursor: pointer;
+}
+
+.main-scrollbar {
+    width: 100vw;
+    height: calc(100vh - 46px);
+}
+
+.main-wrap{
+    width: 100vw;
+    display : inline-block;
+    vertical-align: top;
+    height: calc(100vh - 46px);
+    margin: 0;
+    padding: 0;
+    transition: width 0.3s, left 0.3s, right 0.3s, padding 0.3s;
+}
+
+.menu-wrap{
+    position: absolute;
+    left: 0;
+    height: calc(100vh - 46px - 38px);
+    transition: width 0.3s, left 0.3s, right 0.3s, padding 0.3s;
+    z-index: 2;
+    overflow-x: hidden;
+}
+
+.main-content{
+    height: calc(100vh - 46px - 56px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-left: 10px;
+
+}
+
+.Sidebar-Expand{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    height: 38px;
+    line-height: 38px;
+    font-size: 14px;
+    text-align: center;
+    border-top: 1px solid #dbdbdb;
+    cursor: pointer;
+    width: 100%;
+    border-right: 1px solid #eee;
+    transition: width 0.3s, left 0.3s, right 0.3s, padding 0.3s;
+}

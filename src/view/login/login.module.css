@@ -1,0 +1,25 @@
+.loginBg{
+    width: 100vw;
+    height: 100vh;
+    background: url("../../assets/image/login.png") no-repeat;
+    background-size: 100% 100%;
+}
+.login-wrap{
+    position: absolute;
+    width: 500px;
+    height: 400px;
+    padding:10px 30px;
+    box-sizing: border-box;
+    background-color: rgba(99,99,99,0.3);
+    top: 20vh;
+    left: calc(50% - 250px);
+    z-index: 9;
+}
+.login-wrap h3{
+    text-align: center;
+    color: orange;
+    height: 50px;
+    line-height: 50px;
+    font-size: 22px;
+    margin-bottom: 20px;
+}

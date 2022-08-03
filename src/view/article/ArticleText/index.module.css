@@ -1,0 +1,10 @@
+.ArticleText >header{
+    margin-bottom:20px
+}
+.ArticleText >header >*{
+    margin-right: 15px;
+
+
+}
+
+
