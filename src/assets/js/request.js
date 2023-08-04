@@ -4,7 +4,7 @@ import userInfo from "./userInfo";
 import PubSub from 'pubsub-js';
 
 let request = axios.create({
-    baseURL:'http://123.249.91.200:8181/',
+    baseURL:'http://123.249.91.200:8199/',
     timeout:10000
 })
 //拦截请求
