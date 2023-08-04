@@ -1,43 +1,51 @@
-import React, { Component } from 'react';
-import {withRouter} from 'react-router-dom';
-import { EditorState, convertToRaw } from 'draft-js';
+import { useState , useEffect , useContext } from 'react';
+import { EditorState, convertToRaw , Modifier  } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
 
 import '/node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './styles.css'
 
-class EditorConvertToHTML extends Component {
-    state = {
-        editorState: EditorState.createEmpty(),
-        content:""
+import MyContext from "../MyContext/MyContext";
+
+export default ()=>{
+
+    const [ editorState , setEditorState ] = useState(EditorState.createEmpty())
+    const [ content , setContent ] = useState('')
+
+    // 接收父组件抛出值
+    const { initialValue , reEditorChange } = useContext(MyContext)
+
+    let onEditorStateChange = (editorState) => {
+        setEditorState(editorState);
+        setContent(draftToHtml(convertToRaw(editorState.getCurrentContent())))
     }
 
-    onEditorStateChange = (editorState) => {
-        this.setState({
-            editorState,
-            content:draftToHtml(convertToRaw(editorState.getCurrentContent()))
-        });
-    }
+    useEffect(()=>{
+       if(!content.length){
+           const newContentState = Modifier.insertText(
+               editorState.getCurrentContent(),
+               editorState.getSelection(),
+               initialValue,
+           );
+           setEditorState(
+               EditorState.push(editorState, newContentState, 'insert-characters')
+           )
+       }
+    },[ initialValue ])
 
-    render() {
-        let { editorState } = this.state
-        return (
-            <div style={{ margin:"20px 10px 0 0" }}>
-                <Editor
-                    editorState={editorState}
-                    wrapperClassName="demo-wrapper"
-                    editorClassName="demo-editor"
-                    onEditorStateChange={this.onEditorStateChange}
-                />
-            </div>
-        );
-    }
+    useEffect(()=>{
+        reEditorChange( content )
+    },[ content ])
 
-    // 渲染完成
-    componentDidMount() {
-        this.props.onRef(this);
-    }
+    return (
+        <div style={{ margin:"20px 10px 0 0" }}>
+            <Editor
+                editorState={ editorState }
+                wrapperClassName="demo-wrapper"
+                editorClassName="demo-editor"
+                onEditorStateChange={ onEditorStateChange }
+            />
+        </div>
+    );
 }
-
-export default withRouter(EditorConvertToHTML)

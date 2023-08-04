@@ -1,7 +1,7 @@
 import axios from "../assets/js/request";
 
 export function login(data){
-    return axios.post('unapi/login',data)
+    return axios.post('unApi/login',data)
 }
 
 export function register(data){

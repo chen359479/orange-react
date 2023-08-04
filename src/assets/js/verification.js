@@ -1,4 +1,14 @@
 export default {
+    require:[
+        { required: true, message: '此项必填', trigger: [ 'blur' , 'change' ] }
+    ],
+    requiredNumber :[
+        { required: true, message: '此项必填！', type:'number', trigger: ['change', 'blur'] }
+    ],
+    requiredObj :[
+        { required: true, message: '此项必填！', type:'object', trigger: ['change', 'blur'] }
+    ],
+    requiredArr :[ {  type: 'array', required: true, message: '此项必填！', trigger: ['change', 'blur'] } ],
     pw:[
         { required: true, min: 6, message: '请输入最少6位密码', trigger: 'blur' },
         { pattern: /^[0-9a-zA-Z]*$/g, message: '密码由最少6位为数字或小写字母或大写字母组成' }
@@ -31,6 +41,11 @@ export default {
     viewTitle:[
         { required: true, message: '请输入菜单名称', trigger: 'blur' },
         { min: 2, max: 42, message: '长度在 2 到 42 个字符', trigger: 'blur' },
-    ]
-
+    ],
+    // 发动机号
+    engineNumber: [ { required: true, message: '请输入正确的发动机号',pattern:new RegExp(/^[A-Za-z0-9]{17}$/, "g")} ],
+    // 车架号
+    vinReg: [{ required: true, message: '请输入正确的车架号',pattern:new RegExp(/^[A-HJ-NPR-Z0-9]{17}$/, "g")}],
+    // 身份证号
+    idNumber:[ { required: true, message: '请输入正确的身份证号',pattern:new RegExp(/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, "g")}],
 }

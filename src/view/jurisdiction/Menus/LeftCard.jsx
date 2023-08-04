@@ -1,132 +1,116 @@
-import React, {Component} from 'react';
-import {withRouter} from 'react-router-dom';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { useState , useEffect , useContext } from 'react';
 import { Card , Button , message , Modal  } from 'antd';
 
-import { getMenuList , deleteMenu  } from '../../../api/menus';
+import { getMenuList as getMenuListApi , deleteMenu as deleteMenuApi  } from '@/api/menus';
+import { confirmMsg } from '@/assets/js/public'
 
+import MyContext from "@/component/MyContext/MyContext";
 import styles from './index.module.css'
 
 const { confirm } = Modal;
-class LeftCard extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            allMenuList:[],
-            startMenuForm:{
-                viewPath:"",
-                name:"",
-                title:"",
-                sequence:99,
-                children:[],
-                icon:"",
-                astrict:['user'],
-                type:true,
-                msg:''
-            }
-        };
-    }
+export default () => {
+
+    const [ allMenuList , setAllMenuList ] = useState([]);
+    const [ startMenuForm , setStartMenuForm ] = useState({
+        viewPath:"",
+        name:"",
+        title:"",
+        sequence:99,
+        children:[],
+        icon:"",
+        astrict:['user'],
+        type:true,
+        msg:''
+    });
+    const [ titleList ] =  useState([ "顶级菜单","二级菜单","三级菜单"]);
+    const { editMenu , updateStatus } = useContext(MyContext);
 
     // 获取分类的菜单
-    getMenuList = _=>{
-        getMenuList().then(res=>{
-            this.setState({
-                allMenuList:res.data
-            },this.forceUpdate)
+    let getMenuList = _=>{
+        getMenuListApi().then(res=>{
+            setAllMenuList(res.data)
         })
     }
 
     // 新增菜单
-    addMenuForm = index =>{
-        let { startMenuForm } = this.state;
-        startMenuForm.hierarchy = index + 1;
-        switch (startMenuForm.hierarchy){
+    let addMenuForm = index =>{
+        let obj = { ...startMenuForm  }
+        obj.hierarchy = index + 1;
+        switch (obj.hierarchy){
             case 1:
-                startMenuForm.msg = '添加顶级菜单';
+                obj.msg = '添加顶级菜单';
                 break
             case 2:
-                startMenuForm.msg = '添加二级菜单';
+                obj.msg = '添加二级菜单';
                 break
             case 3:
-                startMenuForm.msg = '添加三级菜单';
+                obj.msg = '添加三级菜单';
                 break
         }
-        this.props.editMenu( startMenuForm )
-
+        setStartMenuForm(obj)
     }
 
     // 更新菜单
-    updateMenuForm = data=>{
-        this.props.editMenu( { ...data,children:JSON.parse(data.children),astrict:JSON.parse(data.astrict),msg:'修改菜单：'+ data.title } )
+    let updateMenuForm = data=>{
+        editMenu( { ...data,children:JSON.parse(data.children),astrict:JSON.parse(data.astrict),msg:'修改菜单：'+ data.title } )
     }
 
     // 删除菜单
-    deleteMenu = id=>{
-        let that = this;
+    let deleteMenu = id=>{
         confirm({
             title: '确定删除当前菜单吗?',
-            icon: <ExclamationCircleOutlined />,
-            content: '此操作不可逆，请谨慎操作！',
-            cancelText:'取消',
-            okText:'确定',
+            ...confirmMsg,
             onOk() {
-                deleteMenu({id}).then(res=>{
+                deleteMenuApi({id}).then(res=>{
                     message.success(res.msg);
-                    that.getMenuList()
+                    getMenuList()
                 })
             },
         });
     }
 
-    render() {
-        let { allMenuList } = this.state,
-            titleList = [ "顶级菜单","二级菜单","三级菜单" ]
-        return (
-            <div style={{ height : "calc(100vh - 56px - 40px - 10px)",overflow:"hidden auto" }}>
-                {
-                    allMenuList.length && allMenuList.map((item,index)=>{
-                        return (
-                            <Card
-                                key={ index }
-                                title={ titleList[index] }
-                                extra={<Button type="link" onClick={ _=>this.addMenuForm(index) }>添加菜单</Button>}
-                                style={{ marginBottom:"20px" }}
-                            >
-                                {
-                                    item.map( i =>{
-                                        return (
-                                            <div className={ styles.link } key={ i.id }>
-                                                <Button
-                                                    type={i.conclude?'text':'link'}
-                                                    title={i.conclude?'已被纳入上级菜单中':'未被纳入上级菜单中'}
-                                                    onClick={ _=>this.updateMenuForm(i) }
-                                                >
-                                                    { i.title }
-                                                </Button>
-                                                <Button style={{ display : i.name !== 'home'?'block':'none' }} type="link" danger onClick={ _=>{ this.deleteMenu(i.id) } }>
-                                                    删除
-                                                </Button>
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </Card>
-                        )
-                    })
-                }
-            </div>
-        )
-    }
+    useEffect(()=>{
+        editMenu( startMenuForm )
+    }, [ startMenuForm ])
 
-    // 渲染完成
-    componentDidMount() {
-        this.getMenuList();
-        this.addMenuForm(0)
-    }
+    useEffect(()=>{
+        getMenuList();
+        addMenuForm(0)
+    }, [ updateStatus ])
 
-    // 组件卸载
-    componentWillUnmount() {
-    }
+    return (
+        <div style={{ height : "calc(100vh - 56px - 40px - 10px)",overflow:"hidden auto" }}>
+            {
+                allMenuList.length && allMenuList.map((item,index)=>{
+                    return (
+                        <Card
+                            key={ index }
+                            title={ titleList[index] }
+                            extra={<Button type="link" onClick={ _=>addMenuForm(index) }>添加菜单</Button>}
+                            style={{ marginBottom:"20px" }}
+                        >
+                            {
+                                item.map( i =>{
+                                    return (
+                                        <div className={ styles.link } key={ i.id }>
+                                            <Button
+                                                type={i.conclude?'text':'link'}
+                                                title={i.conclude?'已被纳入上级菜单中':'未被纳入上级菜单中'}
+                                                onClick={ _=>updateMenuForm(i) }
+                                            >
+                                                { i.title }
+                                            </Button>
+                                            <Button style={{ display : i.name !== 'home'?'block':'none' }} type="link" danger onClick={ _=>{ deleteMenu(i.id) } }>
+                                                删除
+                                            </Button>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </Card>
+                    )
+                })
+            }
+        </div>
+    )
 }
-
-export default withRouter(LeftCard)

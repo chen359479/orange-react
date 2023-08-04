@@ -40,6 +40,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+build/
+.idea
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
@@ -114,3 +116,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/.gitignore
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/orange-react-master.iml
+/.idea/vcs.xml
+/.idea/workspace.xml

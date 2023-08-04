@@ -1,6 +1,6 @@
-.WxUser >header{
+.header{
     margin-bottom:20px
 }
-.WxUser >header >*{
+.header >*{
     margin-right: 15px;
 }

@@ -1,211 +1,170 @@
-import React, {Component} from 'react';
-import {withRouter} from 'react-router-dom';
+import { useState , useEffect } from 'react';
 
-import { Table , Button ,  Select  , Modal , message , } from 'antd';
-import {  DeleteOutlined , ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button , Modal , message , } from 'antd';
+import {  DeleteOutlined , PlusOutlined } from '@ant-design/icons';
 
-import { getArticleTopClass , getArticleSecondaryClass  } from '../../../api/class';
-import { getArticleList , deleteArticle } from '../../../api/article';
+import { getTopClass  as getTopClassApi } from '@/api/class';
+import { getArticleList as getArticleListApi , deleteArticle as deleteArticleApi } from '@/api/article';
 
-import styles from './index.module.css';
+// 引入组件
+import MyContext from "@/component/MyContext/MyContext";
+import UpdateArticleInfoBox from "./UpdateArticleInfo";
+import TableBox from '@/component/TableBox/Index';
+import SearchBox from "@/component/SearchBox/Index";
 
-const { Option } = Select;
+import { search , confirmMsg , statusList } from '@/assets/js/public';
+
 const { confirm } = Modal;
-class ArticleInfo extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            searchForm:{
-                tableName:"",
-                title:'全部',
-                page:1,
-                pageSize:10
-            },
-            // 顶级分类
-            topClass:[],
-            // 次级分类
-            secondaryClass:[],
-            activeData:[],
-            activeArticleList:[],
-            columns:[
-                {
-                    title: '标题',
-                    dataIndex: 'title',
-                    align:'center',
-                    width:800
-                },{
-                    title: '创建时间',
-                    dataIndex: 'time',
-                    align:'center',
-                },{
-                    title: '语言',
-                    dataIndex: 'lang',
-                    align:'center',
-                },{
-                    title: '大小',
-                    dataIndex: 'size',
-                    align:'center',
-                },{
-                    title: '操作',
-                    align:'center',
-                    width:160,
-                    render:(_,row)=>{
-                        return (
-                            <div>
-                                <Button type="link" >编辑</Button>
-                                <Button type="link" danger onClick={ _=>this.deleteArticle(row.id) }>删除</Button>
-                            </div>
-                        )
+
+export default ()=> {
+    const [ searchForm , setSearchForm ] = useState(search);
+    const [ editForm , setEditForm ] = useState({
+        switch:false,
+        id:0,
+        classID:""
+    });
+
+    const [ topClass , setTopClass ] = useState([]);
+    const [ articleData , setArticleData ] = useState([]);
+    const [ total , setTotal ] = useState([]);
+    const [ activeArticleList , setActiveArticleList ] = useState([]);
+    const columns = [
+            {
+                title: '标题',
+                dataIndex: 'title',
+                align:'center',
+                width:800
+            },{
+                title: '价格',
+                dataIndex: 'price',
+                align:'center',
+            },{
+                title: '状态',
+                dataIndex: 'status',
+                align:'center',
+                render: state =>{
+                    let stateStyle = {};
+                    switch(state){
+                        case true:
+                            stateStyle = { color: "#52c41a" };
+                            break
+                        case false:
+                            stateStyle = { color: "#faad14" };
+                            break
                     }
+                    return ( <span style={stateStyle}> { state? "上架":"下架" } </span> )
                 },
-            ],
-        };
-    }
+            },{
+                title: '浏览次数',
+                dataIndex: 'hits',
+                align:'center',
+            },{
+                title: '创建时间',
+                dataIndex: 'created_time',
+                align:'center',
+            },{
+                title: '操作',
+                align:'center',
+                width:160,
+                render:(_,row)=>{
+                    return (
+                        <div>
+                            <Button type="link" onClick={ ()=>addArticle( true , row.id ) }>编辑</Button>
+                            <Button type="link" danger onClick={ _=>deleteArticle(row.id) }>删除</Button>
+                        </div>
+                    )
+                }
+            },
+        ];
 
     // 获取顶级分类
-    getArticleTopClass =_=>{
-        getArticleTopClass().then(res=>{
-            this.setState({
-                topClass: res.data,
-                searchForm:{
-                    ...this.state.searchForm,
-                    tableName : res.data[0].name
-                }
-            },_=>{ this.getArticleSecondaryClass(res.data[0].name)} )
-
+    let getTopClass = _=>{
+        getTopClassApi({ type : 1 }).then(res=>{
+            setTopClass(res.data);
+            setSearchForm({
+                ...searchForm,
+                classID : res.data[0].id
+            })
         })
-    }
-
-    // 获取顶级分类下的次级分类
-    getArticleSecondaryClass = name => {
-        let { topClass , searchForm } = this.state;
-        let { id } = topClass.filter(item=>item.name === name)[0];
-        getArticleSecondaryClass({id}).then(res=>{
-            this.setState({
-                secondaryClass:[{ title:"全部"}].concat(res.data),
-                searchForm :{
-                    ...searchForm,
-                    title:"全部",
-                    page:1
-                }
-            }, this.getArticleList)
-        })
-    }
-
-    // 顶级分类的切换
-    topClassChange=(tableName)=>{
-        let { searchForm } = this.state;
-        this.setState({
-            searchForm : { ...searchForm , tableName }
-        },_=>this.getArticleSecondaryClass(tableName))
-    }
-
-    // 次级分类的切换
-    secondaryClassChange = (title)=>{
-        let { searchForm } = this.state;
-        this.setState({
-            searchForm : { ...searchForm , title }
-        },this.getArticleList)
     }
 
     // 获取数据
-    getArticleList=()=>{
-        let s = { ...this.state.searchForm }
-        if(s.title === "全部")s.title = "";
-
-        getArticleList(s).then(res=>{
-            this.setState({
-                activeData:res.data,
-                searchForm:{
-                    ...this.state.searchForm,
-                    total: res.total
-                }
-            })
-        },this.forceUpdate)
+    let getArticleList = ()=>{
+        getArticleListApi({
+            ...searchForm,
+            type:searchForm.type=== 2? null: searchForm.type
+        }).then(res=>{
+            setArticleData(res.data);
+            setTotal(res.total)
+        })
     }
 
-    // 选中的方法
-    onSelectChange = (newSelectedRowKeys) => {
-        this.setState({
-            activeArticleList:newSelectedRowKeys
-        })
-    };
-
     // 删除
-    deleteArticle= id=>{
-        let { tableName } = this.state.searchForm,
-            that = this,
-            { activeArticleList } = this.state;
-
+    let deleteArticle= id=>{
         confirm({
             title: `确定删除${ id?'此条':'这些' }内容吗?`,
-            icon: <ExclamationCircleOutlined />,
-            content: '此操作不可逆，请谨慎操作！',
-            okText: '确定',
-            okType: 'danger',
-            cancelText: '取消',
+            ...confirmMsg,
             onOk() {
-                deleteArticle({id:id?id:activeArticleList,tableName}).then(res=>{
+                deleteArticleApi({id:id? id : activeArticleList }).then(res=>{
                     message.success(res.msg);
-                    that.getArticleList()
+                    getArticleList()
                 })
             },
         });
     }
 
-    // 页码 或 pageSize 的变化
-    handleSizeChange=(page, pageSize)=> {
-        // 判断pagesize是否发生了变化，如果是则将page改成1；
-        let data = { ...this.state.searchForm, pageSize };
-        pageSize !== this.state.searchForm.pageSize?data.page = 1:data.page = page;
-        this.setState({
-            searchForm: data
-        },this.getArticleList)
+    // 添加资源内容
+    let addArticle = ( val ,id )=>{
+        setEditForm({
+            switch : val,
+            id,
+            classID: searchForm.classID
+        })
     }
 
-    render() {
-        let { searchForm , topClass , secondaryClass , activeArticleList , activeData , columns , } = this.state,
-            rowSelection = {
-                activeArticleList,
-                onChange: this.onSelectChange,
-            };
-        return (
-            <div className={ styles.ArticleInfo }>
-                <header>
-                    <Select value={ searchForm.tableName } style={{ width: 150 }} onChange={ this.topClassChange }>
-                        {
-                            topClass && topClass.map(item=><Option key={item.name} value={ item.name }> { item.title } </Option>)
-                        }
-                    </Select>
-                    <Select value={ searchForm.title }  style={{ width: 150 }} onChange={ this.secondaryClassChange }>
-                        {
-                            secondaryClass && secondaryClass.map(item=><Option key={item.title} value={ item.title }> { item.title } </Option>)
-                        }
-                    </Select>
+    let startArr = [
+        {
+            name :'classID',
+            label:'类别',
+            type:'option',
+            selectData: topClass
+        },{
+            name :'type',
+            label:'状态',
+            type:'option',
+            selectData: statusList
+        }
+    ]
 
-                    <Button danger disabled={ 0 >= activeArticleList.length  }  icon={<DeleteOutlined />} onClick={ this.deleteArticle } > 批量删除 </Button>
-                </header>
+    const endArr = [
+        <Button type="primary"  icon={<PlusOutlined />} onClick={ ()=>addArticle(true) } > 添加 </Button>,
+        <Button danger disabled={ 0 >= activeArticleList.length  }  icon={<DeleteOutlined />} onClick={ _=>deleteArticle() } > 批量删除 </Button>
+    ]
 
-                <Table bordered rowKey={ row => row.id }  rowSelection={ rowSelection } columns={ columns } dataSource={ activeData } pagination={{
-                    current:searchForm.page,
-                    pageSize:searchForm.pageSize,
-                    total:searchForm.total,
-                    showTotal:(total) => `共${total}条数据`,
-                    onChange : this.handleSizeChange
-                }} />
+    useEffect(()=>{
+        getTopClass()
+    },[ ])
 
-            </div>
-        )
-    }
+    useEffect(()=>{
+        getArticleList()
+    },[ searchForm ])
 
-    // 渲染完成
-    componentDidMount() {
-        this.getArticleTopClass()
-    }
+    return (
+        <div>
+            {
+                editForm.switch?
+                    <MyContext.Provider value={{
+                        editForm,
+                        closeEdit : () =>{ setEditForm({ ...editForm , switch :false }); getArticleList() }
+                    }}>
+                        <UpdateArticleInfoBox  />
+                    </MyContext.Provider>
+                    :
+                    <SearchBox startArr={ startArr } endArr={endArr} searchForm={ searchForm } setSearchForm={ setSearchForm }/>
+            }
 
-    // 组件卸载
-    componentWillUnmount() {
-    }
+            <TableBox show={ editForm.switch } columns={ columns } activeList={activeArticleList} setActiveList={ setActiveArticleList }
+                      dataSource={ articleData } searchForm={searchForm} total={total} setSearchForm={setSearchForm} />
+        </div>
+    )
 }
-
-export default withRouter(ArticleInfo)

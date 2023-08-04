@@ -1,6 +1,6 @@
-.ArticleInfo >header{
+.classSet >header{
     margin-bottom:20px
 }
-.ArticleInfo >header >*{
+.classSet >header >*{
     margin-right: 15px;
 }

@@ -1,8 +1,6 @@
 .header {
     height: 46px;
     line-height: 46px;
-    background-color: #eeeeee;
-    border-bottom: 1px solid #eee;
     text-align: right;
     overflow: hidden;
 }
@@ -12,7 +10,6 @@
     text-align: center;
 }
 .header >div >i{
-    color: #000;
     cursor: pointer;
 }
 
@@ -26,12 +23,12 @@
     cursor: pointer;
 }
 
-.main-scrollbar {
+.mainScrollbar {
     width: 100vw;
     height: calc(100vh - 46px);
 }
 
-.main-wrap{
+.mainWrap{
     width: 100vw;
     display : inline-block;
     vertical-align: top;
@@ -41,7 +38,7 @@
     transition: width 0.3s, left 0.3s, right 0.3s, padding 0.3s;
 }
 
-.menu-wrap{
+.menuWrap{
     position: absolute;
     left: 0;
     height: calc(100vh - 46px - 38px);
@@ -50,7 +47,7 @@
     overflow-x: hidden;
 }
 
-.main-content{
+.mainContent{
     height: calc(100vh - 46px - 56px);
     overflow-x: hidden;
     overflow-y: auto;
@@ -58,7 +55,7 @@
 
 }
 
-.Sidebar-Expand{
+.sidebarExpand{
     position: fixed;
     left: 0;
     bottom: 0;
@@ -66,9 +63,8 @@
     line-height: 38px;
     font-size: 14px;
     text-align: center;
-    border-top: 1px solid #dbdbdb;
+    border-top-right-radius: 2px;
     cursor: pointer;
     width: 100%;
-    border-right: 1px solid #eee;
     transition: width 0.3s, left 0.3s, right 0.3s, padding 0.3s;
 }

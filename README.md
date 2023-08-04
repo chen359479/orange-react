@@ -4,7 +4,7 @@
 
 具有配置简洁、代码清晰、新手友好的特点。
 
-线上地址：[http://175.24.172.244:8199/](http://175.24.172.244:8199/)
+线上地址：[http://123.249.91.200:8181/#/login](http://123.249.91.200:8181/)
 
 ## 测试账号
 - 超级管理员  superAdmin  123456 
@@ -30,7 +30,7 @@
 
 ## 技术
 
-在 react 18  + antd（4.21.5）平稳运行。
+在 react 18  + antd（5.8.1）平稳运行。
 
 在图表上使用Ant Design Charts插件， [Ant Design Charts官网](https://charts.ant.design/zh)
 
@@ -54,12 +54,16 @@
 
 - [x] 小程序用户
 
+- [x] 主题切换
+
+- [x] 路由缓存
+
   
 
 ## 安装步骤
 
 ```
-git clone https://gitee.com/chen359479/orange-react.git //下载模板到本地
+git clone https://github.com/chen359479/orange-react.git //下载模板到本地
 
 // 启动前端项目
 cd orange-react //进入前端模板目录
